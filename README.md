@@ -1,13 +1,18 @@
 # Gold Miner ($MINER) — Play-to-Earn on Solana
 
 The classic Gold Miner game as a Solana memecoin project. pump.fun creator rewards fund a
-reward pool; every **15 minutes** the top 10 players split the pool in SOL, proportionally to score.
+reward wallet; every **15 minutes** the top 10 players split a slice of it in SOL, proportionally
+to score. Holders only: 100,000 $MINER required to play ranked.
 
 ## Status
 
-- [x] Phase 1 — landing page + playable Gold Miner (practice mode)
-- [ ] Phase 2 — wallet connect, server-side replay verification, leaderboard
-- [ ] Phase 3 — 100k $MINER hold check, 15-minute epochs, automatic SOL payouts, public payout log
+- [x] Landing page + playable Gold Miner (25 shots per run, continuous gold/rock spawning)
+- [x] Wallet login (Wallet Standard: Phantom, Solflare, Backpack…) via signed message
+- [x] Server-issued seeds, server-side replay verification, bot filters
+- [x] Live leaderboard (polled every 5 s), one entry per wallet (best score), 5 runs per round
+- [x] Payout job: top 10 proportional split, on-chain SOL transfers, public payout log with Solscan links
+- [x] Holder check (100k $MINER) — activates automatically when `TOKEN_MINT` is set
+- [ ] Production env (Upstash Redis, RPC, reward wallet, cron) — see below
 
 ## Run locally
 
@@ -16,24 +21,40 @@ npm install
 npm run dev
 ```
 
-## How the anti-cheat works
+`npm run dev` serves the API too (`/api/*`) with an in-memory store, so the full ranked flow works
+without any external service. Copy `.env.example` to `.env` to test against real Redis / RPC.
 
-The game engine (`src/game/engine.ts`) is a pure, deterministic simulation: fixed 60 Hz timestep,
-seeded PRNG, no wall-clock. The browser only records *inputs* (`{tick, action}`) — it never reports
-a score. The server regenerates the level from the seed it issued, replays the inputs through the
-same engine and computes the score itself. Impossible input timings, duplicate replays and
-bot-like patterns are rejected before a run can enter the leaderboard.
+## Deploy (Vercel)
 
-## Reward model
+1. Import the repo on Vercel (framework: Vite). The `api/[...path].ts` function is picked up automatically.
+2. Add **Upstash Redis** from the Vercel Marketplace (Storage tab) — it injects `KV_REST_API_URL` / `KV_REST_API_TOKEN`.
+3. Set env vars (see `.env.example`): `AUTH_SECRET`, `CRON_SECRET`, `SOLANA_RPC_URL` (Helius recommended),
+   `REWARD_WALLET_SECRET` (base58 secret key of the **reward** wallet — a dedicated wallet, never the creator wallet),
+   `PAYOUT_PCT` (default 5), and at launch `TOKEN_MINT`.
+4. Schedule the payout job every 15 minutes with an external cron (cron-job.org, GitHub Actions…),
+   at minutes **2, 17, 32, 47** so late submissions are included:
+   `POST https://<domain>/api/cron/payout` with header `Authorization: Bearer <CRON_SECRET>`.
+
+## How a ranked run works
+
+1. `POST /api/run/start` — checks holder status and the 5-runs-per-round cap, issues a session id + random seed.
+2. The browser plays the deterministic engine (`src/game/engine.ts`) and records inputs as `{tick, action}`.
+3. `POST /api/run/submit` — the server replays the inputs through the same engine and computes the score.
+   Rejected: replays of a used session, runs finishing faster than real time, inputs faster than a human tap,
+   perfectly periodic firing. The client's own score is never read.
+4. Score is written to the round's sorted set with `ZADD GT` — a wallet keeps only its best score.
+
+## Payout model
 
 | | |
 |---|---|
-| Epoch | 15 minutes |
-| Winners | top 10 by best run score, pool split proportionally to score |
-| Eligibility | wallet holds ≥ 100,000 $MINER at play time and at payout |
-| Runs per wallet per epoch | 5 |
-| Creator reward split | 70% players · 20% buyback/marketing · 10% infra |
+| Round | 15 min, aligned to the clock |
+| Winners | top 10 by best run; pool split proportionally to score |
+| Pool per round | `PAYOUT_PCT`% (default 5%) of the reward wallet balance at settlement |
+| Eligibility | ≥ 100,000 $MINER at play time **and** at payout time |
+| Runs per wallet per round | 5 |
+| Creator reward split | 70% → reward wallet · 20% buyback/marketing · 10% infra |
 
 ## Config
 
-Token address, links and reward wallet live in `src/config.ts`.
+Env vars control the backend (`.env.example`). Social links live in `src/config.ts`.

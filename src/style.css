@@ -102,6 +102,52 @@ section { padding: 72px 0; }
 .offer-price { font-weight: 800; color: #4ade80; }
 .game-bar { display: flex; justify-content: space-between; max-width: 800px; margin: 12px auto 0; font-size: .95rem; }
 
+/* Play layout */
+.nav-right { display: flex; gap: 10px; align-items: center; }
+.holder-banner { display: flex; gap: 14px; align-items: center; background: #2a1d0a; border: 1px solid #6b4a1a; border-left: 5px solid var(--gold); border-radius: 12px; padding: 14px 18px; margin: 0 auto 18px; max-width: 1120px; }
+.holder-banner.active { border-left-color: var(--sol); }
+.hb-icon { font-size: 1.6rem; }
+.play-grid { display: grid; grid-template-columns: minmax(0, 800px) minmax(280px, 320px); gap: 20px; justify-content: center; align-items: start; }
+.wallet-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: .9rem; color: var(--muted); margin-bottom: 10px; }
+.wallet-bar .warn { color: #ffb24d; }
+.pill { background: #2a1d0a; border: 1px solid #6b4a1a; border-radius: 999px; padding: 3px 12px; color: var(--gold); font-weight: 700; }
+.start-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+/* Leaderboard */
+.lb { background: var(--panel); border: 1px solid #3d2a12; border-radius: var(--radius); padding: 18px; }
+.lb-head { display: flex; justify-content: space-between; align-items: center; }
+.live { font-size: .7rem; font-weight: 800; color: #ff5a5a; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: #ff5a5a; animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+.lb-sub { margin: 4px 0 10px; }
+.lb-list { list-style: none; padding: 0; margin: 0 0 10px; display: grid; gap: 6px; }
+.lb-row { display: grid; grid-template-columns: 32px 1fr auto auto; gap: 8px; align-items: center; background: #16100a; border: 1px solid #2e2012; border-radius: 10px; padding: 8px 10px; font-size: .92rem; }
+.lb-row.me { border-color: var(--sol); box-shadow: 0 0 0 1px var(--sol) inset; }
+.lb-rank { font-weight: 800; color: var(--gold); text-align: center; }
+.lb-wallet { font-family: ui-monospace, monospace; color: var(--text); text-decoration: none; }
+.lb-wallet:hover { color: var(--gold); }
+.lb-score { font-weight: 800; color: #4ade80; }
+.lb-est { font-size: .8rem; color: var(--sol); min-width: 60px; text-align: right; }
+.lb-empty { color: var(--muted); font-size: .9rem; padding: 10px 0; }
+
+/* Payouts */
+.table-wrap { overflow-x: auto; max-width: 900px; margin: 0 auto; background: var(--panel); border: 1px solid #3d2a12; border-radius: var(--radius); }
+.payout-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.payout-table th, .payout-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #2e2012; white-space: nowrap; }
+.payout-table th { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: 1px; }
+.payout-table a { text-decoration: none; font-family: ui-monospace, monospace; }
+.sol-amt { color: var(--sol); font-weight: 800; }
+.center { text-align: center !important; }
+
+/* Wallet modal */
+.modal { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.7); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal[hidden] { display: none; }
+.modal-box { background: var(--panel); border: 2px solid var(--gold-dark); border-radius: var(--radius); padding: 24px; width: min(380px, 100%); text-align: center; }
+.wallet-list { display: grid; gap: 8px; margin: 16px 0; }
+.wallet-opt { display: flex; align-items: center; gap: 12px; background: #16100a; border: 2px solid #3d2a12; border-radius: 12px; padding: 12px; color: var(--text); font: 700 1rem 'Nunito', sans-serif; cursor: pointer; }
+.wallet-opt:hover { border-color: var(--gold); }
+.wallet-opt img { width: 28px; height: 28px; border-radius: 6px; }
+
 /* Cards */
 .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .card { background: var(--panel); border: 1px solid #3d2a12; border-radius: var(--radius); padding: 24px; }
@@ -149,7 +195,7 @@ footer { border-top: 1px solid #2e2012; padding: 32px 16px; text-align: center; 
   .hero-art img { max-width: 240px; }
   .stats, .cards { grid-template-columns: repeat(2, 1fr); }
   .tok-grid { grid-template-columns: 1fr; }
-  .offers { grid-template-columns: 1fr; }
+  .play-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) {
   .stats, .cards { grid-template-columns: 1fr; }

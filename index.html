@@ -18,12 +18,15 @@
       <a class="brand" href="#top"><img src="/logo.png" alt="" /><span>Gold Miner</span></a>
       <nav>
         <a href="#play">Play</a>
-        <a href="#rewards">Rewards</a>
+        <a href="#leaderboard">Leaderboard</a>
+        <a href="#payouts">Payouts</a>
         <a href="#how">How it works</a>
         <a href="#tokenomics">Tokenomics</a>
-        <a href="#faq">FAQ</a>
       </nav>
-      <a class="btn btn-primary btn-sm" id="buy-top" href="#" target="_blank" rel="noopener">Buy $MINER</a>
+      <div class="nav-right">
+        <button class="btn btn-ghost btn-sm" id="wallet-btn">Connect wallet</button>
+        <a class="btn btn-primary btn-sm" id="buy-top" href="#" target="_blank" rel="noopener">Buy $MINER</a>
+      </div>
     </header>
 
     <main id="top">
@@ -32,8 +35,8 @@
           <p class="eyebrow">Solana · pump.fun · Play-to-Earn</p>
           <h1>Dig gold.<br />Get paid in <span class="sol">SOL</span>.</h1>
           <p class="lead">
-            The classic Gold Miner you grew up with — now every <b>15 minutes</b> the top 10 miners
-            split real SOL from the creator reward pool. No entry fee. Just hold <b>100,000 $MINER</b> and play.
+            The classic Gold Miner — now every <b>15 minutes</b> the top 10 miners split real SOL from the
+            creator reward pool. No entry fee. <b>Holders only:</b> 100,000 $MINER in your wallet is your mining licence.
           </p>
           <div class="hero-cta">
             <a class="btn btn-primary" href="#play">▶ Play now</a>
@@ -51,60 +54,76 @@
       </section>
 
       <section class="stats">
-        <div class="stat"><span class="stat-label">Reward pool</span><span class="stat-value" id="stat-pool">— SOL</span></div>
-        <div class="stat"><span class="stat-label">Next payout in</span><span class="stat-value" id="stat-timer">--:--</span></div>
-        <div class="stat"><span class="stat-label">Paid out so far</span><span class="stat-value" id="stat-paid">— SOL</span></div>
-        <div class="stat"><span class="stat-label">Miners this round</span><span class="stat-value" id="stat-players">—</span></div>
+        <div class="stat"><span class="stat-label">Reward wallet</span><span class="stat-value" id="stat-pool">—</span></div>
+        <div class="stat"><span class="stat-label">This round's pool</span><span class="stat-value" id="stat-epoch-pool">—</span></div>
+        <div class="stat"><span class="stat-label">Round ends in</span><span class="stat-value" id="stat-timer">--:--</span></div>
+        <div class="stat"><span class="stat-label">Paid out so far</span><span class="stat-value" id="stat-paid">—</span></div>
       </section>
 
       <section id="play" class="play">
         <div class="section-head">
           <h2>Play Gold Miner</h2>
-          <p>Press <kbd>Space</kbd> or tap to drop the hook. <kbd>D</kbd> for dynamite. Hit the goal before time runs out — 5 levels, best money wins.</p>
+          <p><kbd>Space</kbd> or tap to drop the hook · <kbd>D</kbd> for dynamite · <b id="shots-info">25 shots</b> per run · gold keeps spawning, make every shot count.</p>
         </div>
-        <div class="game-frame">
-          <canvas id="game"></canvas>
-          <div id="overlay" class="overlay open">
-            <div class="start">
-              <img src="/logo.png" alt="" />
-              <h3>Ready to dig?</h3>
-              <p>Practice mode — scores are local for now. Wallet connect &amp; SOL rewards go live at launch.</p>
-              <button class="btn btn-primary" id="start-btn">▶ Start mining</button>
-            </div>
+
+        <div class="holder-banner" id="holder-banner">
+          <span class="hb-icon">🔒</span>
+          <div>
+            <b>Holders only.</b> Ranked play and SOL rewards require at least <b>100,000 $MINER</b> in the connected wallet.
+            <span id="holder-state" class="muted">Enforced automatically once the token is live.</span>
           </div>
         </div>
-        <div class="game-bar">
-          <div>Best score: <b id="best">$0</b></div>
-          <div class="muted" id="status">Practice mode</div>
+
+        <div class="play-grid">
+          <div>
+            <div class="wallet-bar" id="wallet-bar">
+              <span id="wallet-status">Not connected — practice mode (score not ranked)</span>
+              <span id="runs-left" class="pill" hidden></span>
+            </div>
+            <div class="game-frame">
+              <canvas id="game"></canvas>
+              <div id="overlay" class="overlay open">
+                <div class="start">
+                  <img src="/logo.png" alt="" />
+                  <h3>Ready to dig?</h3>
+                  <p id="start-text">Connect your wallet to play ranked, or start a practice run.</p>
+                  <div class="start-btns">
+                    <button class="btn btn-primary" id="start-ranked">▶ Play ranked</button>
+                    <button class="btn btn-ghost" id="start-practice">Practice</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="game-bar">
+              <div>Best (practice): <b id="best">0 pts</b></div>
+              <div class="muted" id="status">Idle</div>
+            </div>
+          </div>
+
+          <aside class="lb" id="leaderboard">
+            <div class="lb-head">
+              <h3>Live leaderboard</h3>
+              <span class="live"><i></i>LIVE</span>
+            </div>
+            <p class="muted small lb-sub">Round <span id="lb-epoch">—</span> · <span id="lb-players">0</span> miners · pool <b id="lb-pool">—</b></p>
+            <ol class="lb-list" id="lb-list">
+              <li class="lb-empty">No scores yet this round. Be the first!</li>
+            </ol>
+            <p class="muted small">Top 10 split the round's pool proportionally to score. One entry per wallet — your best run counts.</p>
+          </aside>
         </div>
       </section>
 
-      <section id="rewards" class="rewards">
+      <section id="payouts" class="payouts">
         <div class="section-head">
-          <h2>Rewards every 15 minutes</h2>
-          <p>Creator fees from pump.fun flow into the reward pool. Every 15 minutes the round closes and SOL is sent out automatically.</p>
+          <h2>Latest payouts</h2>
+          <p>Every reward is an on-chain transfer from the reward wallet. Verify each one on Solscan.</p>
         </div>
-        <div class="cards">
-          <div class="card">
-            <div class="card-icon">⏱️</div>
-            <h3>15-minute rounds</h3>
-            <p>96 payouts a day. Miss one, catch the next. The leaderboard resets every round so new players always have a shot.</p>
-          </div>
-          <div class="card">
-            <div class="card-icon">🏆</div>
-            <h3>Top 10 split the pool</h3>
-            <p>The round's pool is split <b>proportionally to score</b> among the top 10. Mine 30% of the top-10 gold, earn 30% of the pool.</p>
-          </div>
-          <div class="card">
-            <div class="card-icon">💎</div>
-            <h3>Hold 100k $MINER</h3>
-            <p>Connect your wallet and hold at least 100,000 $MINER to be eligible. Anyone can play for free in practice mode.</p>
-          </div>
-          <div class="card">
-            <div class="card-icon">🛡️</div>
-            <h3>Cheat-proof</h3>
-            <p>Levels are generated server-side. Your score is never trusted — the server replays your inputs and recomputes it. Bots get filtered by human-timing checks.</p>
-          </div>
+        <div class="table-wrap">
+          <table class="payout-table">
+            <thead><tr><th>Round</th><th>Wallet</th><th>Score</th><th>Reward</th><th>Tx</th></tr></thead>
+            <tbody id="payout-rows"><tr><td colspan="5" class="muted center">No payouts yet. The first round pays out after launch.</td></tr></tbody>
+          </table>
         </div>
       </section>
 
@@ -113,17 +132,45 @@
           <h2>How it works</h2>
         </div>
         <ol class="steps">
-          <li><span>1</span><div><h3>Buy &amp; hold $MINER</h3><p>Grab at least 100,000 $MINER on pump.fun. That's your mining licence.</p></div></li>
-          <li><span>2</span><div><h3>Connect &amp; play</h3><p>Connect Phantom or Solflare, sign a message (no transaction, no fees) and start a run. Up to 5 runs per round count towards the leaderboard.</p></div></li>
-          <li><span>3</span><div><h3>Round closes</h3><p>Every 15 minutes the server verifies all runs by replaying them, ranks the top 10 and computes each share.</p></div></li>
-          <li><span>4</span><div><h3>SOL hits your wallet</h3><p>Payouts are sent straight from the reward wallet. Every transaction is listed publicly with a Solscan link.</p></div></li>
+          <li><span>1</span><div><h3>Buy &amp; hold $MINER</h3><p>Grab at least 100,000 $MINER on pump.fun. That's your mining licence — no tokens, no ranked play.</p></div></li>
+          <li><span>2</span><div><h3>Connect &amp; play</h3><p>Connect Phantom, Solflare or Backpack and sign a message (no transaction, no fees). You get 5 ranked runs per 15-minute round; only your best counts.</p></div></li>
+          <li><span>3</span><div><h3>Round closes</h3><p>Every 15 minutes the round locks. The server has already verified every run by replaying it, so the top 10 is final the moment the clock hits zero.</p></div></li>
+          <li><span>4</span><div><h3>SOL hits your wallet</h3><p>The round's pool is split proportionally among the top 10 and sent straight from the reward wallet. You must still hold 100k $MINER at payout time.</p></div></li>
         </ol>
+      </section>
+
+      <section id="rewards" class="rewards">
+        <div class="section-head">
+          <h2>Built to be fair</h2>
+        </div>
+        <div class="cards">
+          <div class="card">
+            <div class="card-icon">🎲</div>
+            <h3>Server-made maps</h3>
+            <p>Each ranked run gets a secret seed from the server. You can't pick a lucky map or know where the gold is before the hook swings.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🔁</div>
+            <h3>Replay verification</h3>
+            <p>Your browser never sends a score — only the ticks you fired on. The server replays them through the same engine and computes the score itself.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🤖</div>
+            <h3>Bot filters</h3>
+            <p>Runs finishing faster than real time, inputs faster than a human tap, or perfectly periodic firing are rejected before they touch the leaderboard.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">👛</div>
+            <h3>One wallet, one entry</h3>
+            <p>100k $MINER per wallet, 5 runs per round, best score only. Splitting tokens across wallets earns nothing extra — playing well does.</p>
+          </div>
+        </div>
       </section>
 
       <section id="tokenomics" class="tokenomics">
         <div class="section-head">
           <h2>Tokenomics</h2>
-          <p>$MINER launches on pump.fun with a fair launch: no presale, no team allocation, liquidity burned on migration.</p>
+          <p>$MINER launches on pump.fun with a fair launch: no presale, no team allocation.</p>
         </div>
         <div class="tok-grid">
           <div class="tok-chart">
@@ -140,8 +187,8 @@
             <div><span>Chain</span><b>Solana</b></div>
             <div><span>Launch</span><b>pump.fun fair launch</b></div>
             <div><span>Supply</span><b>1,000,000,000</b></div>
-            <div><span>Min. hold to earn</span><b>100,000 $MINER</b></div>
-            <div><span>Payout cadence</span><b>Every 15 min</b></div>
+            <div><span>Min. hold to play</span><b>100,000 $MINER</b></div>
+            <div><span>Payout cadence</span><b>Every 15 min · top 10</b></div>
             <div><span>Reward wallet</span><b id="reward-wallet">TBA</b></div>
           </div>
         </div>
@@ -149,10 +196,9 @@
 
       <section id="faq" class="faq">
         <div class="section-head"><h2>FAQ</h2></div>
-        <details><summary>Where does the SOL come from?</summary><p>pump.fun pays the token creator a share of trading fees. 70% of everything we receive goes into the reward pool. If volume is high, payouts are high; there is no fixed APY and no promises.</p></details>
-        <details><summary>Do I need to pay to play?</summary><p>No. There is no entry fee and no in-game purchase with real money. You only need to hold 100k $MINER in the connected wallet to be eligible for rewards.</p></details>
-        <details><summary>Can't someone just hack the score?</summary><p>No. The client only sends the list of when you fired the hook. The server regenerates the level from its own seed, replays those inputs through the same engine and computes the score itself. Impossible timings, duplicate replays and bot-like input patterns are rejected.</p></details>
-        <details><summary>What stops someone from using 50 wallets?</summary><p>Every wallet needs 100k $MINER, runs are capped per wallet per round, and the pool is split by score among the top 10 — splitting tokens across wallets doesn't give more share than playing well with one.</p></details>
+        <details><summary>Where does the SOL come from?</summary><p>pump.fun pays the token creator a share of trading fees. 70% of everything we receive goes into the reward wallet. Each round pays out a fixed percentage of that wallet, so rewards track trading volume — no fixed APY, no promises.</p></details>
+        <details><summary>Do I need to pay to play?</summary><p>No. There is no entry fee and nothing to buy in-game. You only need to hold 100k $MINER in the connected wallet.</p></details>
+        <details><summary>Can't someone just hack the score?</summary><p>No. The client only sends the list of ticks on which you fired. The server regenerates the map from its own seed, replays those inputs and computes the score. Impossible timings and replayed sessions are rejected.</p></details>
         <details><summary>Is this gambling?</summary><p>No. You never stake or risk anything to play. Rewards are a community distribution of creator fees based on skill.</p></details>
       </section>
     </main>
@@ -169,6 +215,15 @@
         Nothing on this site is financial advice. Play responsibly.
       </p>
     </footer>
+
+    <div id="wallet-modal" class="modal" hidden>
+      <div class="modal-box">
+        <h3>Connect a wallet</h3>
+        <div id="wallet-list" class="wallet-list"></div>
+        <p class="muted small">You'll be asked to sign a message to prove ownership. It's free and triggers no transaction.</p>
+        <button class="btn btn-ghost btn-sm" id="wallet-close">Close</button>
+      </div>
+    </div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>
