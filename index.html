@@ -10,10 +10,12 @@
     <meta property="og:image" content="/logo.png" />
     <link rel="icon" href="/logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Luckiest+Guy&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
+    <div class="crt" aria-hidden="true"></div>
+    <div class="stars" aria-hidden="true"></div>
     <header class="nav">
       <a class="brand" href="#top"><img src="/logo.png" alt="" /><span>Gold Miner</span></a>
       <nav>
@@ -32,8 +34,8 @@
     <main id="top">
       <section class="hero">
         <div class="hero-text">
-          <p class="eyebrow">Solana · pump.fun · Play-to-Earn</p>
-          <h1>Dig gold.<br />Get paid in <span class="sol">SOL</span>.</h1>
+          <p class="eyebrow blink">▶ INSERT COIN · PLAY TO EARN</p>
+          <h1 class="pixel-title"><span class="shimmer">Dig gold.</span><br />Get paid in <span class="sol">SOL</span>.</h1>
           <p class="lead">
             The classic Gold Miner — now every <b>15 minutes</b> the top 10 miners split real SOL from the
             creator reward pool. No entry fee. <b>Holders only:</b> 100,000 $MINER in your wallet is your mining licence.
@@ -49,9 +51,15 @@
           </div>
         </div>
         <div class="hero-art">
+          <div class="coin c1"></div><div class="coin c2"></div><div class="coin c3"></div><div class="coin c4"></div>
           <img src="/logo.png" alt="Gold Miner" />
+          <div class="hero-badge">HI-SCORE<br /><span id="hero-hiscore">-----</span></div>
         </div>
       </section>
+
+      <div class="ticker" aria-hidden="true"><div class="ticker-track">
+        <span>★ TOP 10 SPLIT THE POOL EVERY 15 MINUTES ★ HOLD 100,000 $MINER TO PLAY RANKED ★ SERVER-VERIFIED SCORES, NO CHEATS ★ PAID IN SOL ON-CHAIN ★ </span><span>★ TOP 10 SPLIT THE POOL EVERY 15 MINUTES ★ HOLD 100,000 $MINER TO PLAY RANKED ★ SERVER-VERIFIED SCORES, NO CHEATS ★ PAID IN SOL ON-CHAIN ★ </span>
+      </div></div>
 
       <section class="stats">
         <div class="stat"><span class="stat-label">Reward wallet</span><span class="stat-value" id="stat-pool">—</span></div>
@@ -81,6 +89,7 @@
               <span id="runs-left" class="pill" hidden></span>
             </div>
             <div class="game-frame">
+              <div class="cab-top"><span>GOLD MINER</span><span class="cab-leds"><i></i><i></i><i></i></span></div>
               <canvas id="game"></canvas>
               <div id="overlay" class="overlay open">
                 <div class="start">

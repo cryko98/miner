@@ -67,6 +67,7 @@ async function refreshLeaderboard(): Promise<void> {
   $('lb-epoch').textContent = `#${lb.epoch}`;
   $('lb-players').textContent = String(lb.players);
   $('lb-pool').textContent = sol(lb.epochPoolSol);
+  $('hero-hiscore').textContent = lb.top[0] ? String(lb.top[0].score).padStart(5, '0') : '-----';
   const list = $('lb-list');
   if (lb.top.length === 0) {
     list.innerHTML = '<li class="lb-empty">No scores yet this round. Be the first!</li>';

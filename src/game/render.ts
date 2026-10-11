@@ -4,6 +4,7 @@ export class Renderer {
   private ctx: CanvasRenderingContext2D;
   private earth: CanvasGradient;
   private flashes: { x: number; y: number; text: string; t0: number; color: string }[] = [];
+  private particles: { x: number; y: number; vx: number; vy: number; t0: number; color: string; size: number }[] = [];
 
   constructor(canvas: HTMLCanvasElement) {
     canvas.width = WORLD_W;
@@ -19,6 +20,16 @@ export class Renderer {
 
   flash(x: number, y: number, text: string, color = '#ffe34d'): void {
     this.flashes.push({ x, y, text, t0: performance.now(), color });
+  }
+
+  /** Visual-only particle burst (never touches the simulation). */
+  burst(x: number, y: number, color: string, count = 18): void {
+    const now = performance.now();
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * Math.PI * 2 + Math.random() * 0.4;
+      const sp = 80 + Math.random() * 180;
+      this.particles.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60, t0: now, color, size: 3 + Math.random() * 4 });
+    }
   }
 
   draw(s: State): void {
@@ -100,8 +111,20 @@ export class Renderer {
     c.fillText(`${s.dynamite}`, 770, 48);
     c.textAlign = 'left';
 
-    // Floating texts
+    // Particles (pixel squares, gravity, fade)
     const now = performance.now();
+    this.particles = this.particles.filter((p) => now - p.t0 < 700);
+    for (const p of this.particles) {
+      const t = (now - p.t0) / 1000;
+      const px = p.x + p.vx * t;
+      const py = p.y + p.vy * t + 300 * t * t;
+      c.globalAlpha = 1 - t / 0.7;
+      c.fillStyle = p.color;
+      c.fillRect(Math.round(px), Math.round(py), p.size, p.size);
+    }
+    c.globalAlpha = 1;
+
+    // Floating texts
     this.flashes = this.flashes.filter((f) => now - f.t0 < 900);
     for (const f of this.flashes) {
       const k = (now - f.t0) / 900;

@@ -98,9 +98,12 @@ export class Game {
       const ev = s.events[this.seenEvents];
       const tip = hookTip(s.hook);
       if (ev.kind === 'collect' || ev.kind === 'bag') {
-        this.renderer.flash(tip.x - 20, Math.max(110, tip.y), `+${ev.value}`, ev.kind === 'bag' ? '#9ff3ff' : '#ffe34d');
+        const color = ev.kind === 'bag' ? '#9ff3ff' : '#ffe34d';
+        this.renderer.flash(tip.x - 20, Math.max(110, tip.y), `+${ev.value}`, color);
+        this.renderer.burst(tip.x, Math.max(100, tip.y), color, (ev.value ?? 0) >= 250 ? 30 : 16);
       } else if (ev.kind === 'dynamite') {
         this.renderer.flash(tip.x - 20, tip.y, 'BOOM', '#ff5a3c');
+        this.renderer.burst(tip.x, tip.y, '#ff5a3c', 28);
       }
     }
   }
