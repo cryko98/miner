@@ -130,6 +130,12 @@ class MemoryStore implements Store {
   }
 }
 
+export class StoreNotConfigured extends Error {
+  constructor() {
+    super('Storage not configured: add Upstash Redis to the Vercel project');
+  }
+}
+
 let store: Store | undefined;
 let memoryWarned = false;
 
@@ -140,8 +146,8 @@ export function getStore(): Store {
   if (url && token) {
     store = new RedisStore(new Redis({ url, token }));
   } else {
-    if (process.env.VERCEL_ENV === 'production') {
-      throw new Error('Redis is not configured (UPSTASH_REDIS_REST_URL / TOKEN missing)');
+    if (process.env.VERCEL) {
+      throw new StoreNotConfigured();
     }
     if (!memoryWarned) {
       console.warn('[store] No Redis configured — using in-memory store (dev only)');

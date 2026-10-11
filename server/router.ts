@@ -2,11 +2,11 @@
 // and by the Vite dev-server middleware so local dev needs no extra tooling.
 
 import { randomBytes, randomInt } from 'node:crypto';
-import { getStore, isPersistent } from './store';
+import { getStore, isPersistent, StoreNotConfigured } from './store';
 import { EPOCH_MS, KEYS, RUNS_PER_EPOCH, TOP_N, epochEnd, epochOf, payoutPct } from './epoch';
 import { issueNonce, isValidWallet, loginMessage, verifyLogin, verifyToken } from './auth';
 import { MIN_HOLD_TOKENS, isHolder, rewardWalletAddress, rewardWalletBalanceSol, tokenMint } from './solana';
-import { simulate, SHOTS, TICK_RATE, MAX_TICKS, type Input } from '../src/game/engine';
+import { simulateDetailed, SHOTS, TICK_RATE, MAX_TICKS, type Input } from '../src/game/engine';
 import { runPayout } from './payout';
 
 export interface ApiRequest {
@@ -65,11 +65,11 @@ async function poolSol(): Promise<number> {
 }
 
 export async function handle(req: ApiRequest): Promise<ApiResponse> {
-  const store = getStore();
   const { method, path } = req;
   const body = (req.body ?? {}) as Record<string, unknown>;
 
   try {
+    const store = getStore();
     // ---- public --------------------------------------------------------
     if (method === 'GET' && path === 'config') {
       const mint = tokenMint();
@@ -190,8 +190,8 @@ export async function handle(req: ApiRequest): Promise<ApiResponse> {
       // Mark the session consumed first so a replayed request can't double-submit.
       await store.set(KEYS.session(sessionId), { ...session, done: true }, SESSION_TTL_SEC);
 
-      const result = simulate(session.seed, inputs);
-      const reason = antiBot(inputs, result.tick, Date.now() - session.startedAt);
+      const { state: result, reactionDelays } = simulateDetailed(session.seed, inputs);
+      const reason = antiBot(inputs, reactionDelays, result.tick, Date.now() - session.startedAt);
       if (reason) return err(422, `Run rejected: ${reason}`);
 
       // Score lands in the epoch the run started in. A run that ends shortly
@@ -217,6 +217,7 @@ export async function handle(req: ApiRequest): Promise<ApiResponse> {
 
     return err(404, 'not found');
   } catch (e) {
+    if (e instanceof StoreNotConfigured) return err(503, e.message);
     console.error('[api]', path, e);
     return err(500, 'internal error');
   }
@@ -239,7 +240,7 @@ function parseInputs(raw: unknown): Input[] | null {
  * Heuristics that a real browser session passes trivially but a script does not.
  * Returns a rejection reason or null.
  */
-function antiBot(inputs: Input[], ticks: number, elapsedMs: number): string | null {
+function antiBot(inputs: Input[], reactionDelays: number[], ticks: number, elapsedMs: number): string | null {
   // 1. Can't finish faster than real time (the sim runs at 60 Hz wall clock).
   const simMs = (ticks / TICK_RATE) * 1000;
   if (elapsedMs < simMs * 0.9 - 1500) return 'finished faster than real time';
@@ -248,14 +249,12 @@ function antiBot(inputs: Input[], ticks: number, elapsedMs: number): string | nu
   for (let i = 1; i < sorted.length; i++) {
     if (sorted[i].t - sorted[i - 1].t < MIN_INPUT_GAP_TICKS) return 'inhuman input timing';
   }
-  // 3. Fire timings that are perfectly periodic come from a script, not a hand.
-  const fires = sorted.filter((i) => i.a === 'fire').map((i) => i.t);
-  if (fires.length >= 8) {
-    const gaps: number[] = [];
-    for (let i = 1; i < fires.length; i++) gaps.push(fires[i] - fires[i - 1]);
-    const mean = gaps.reduce((a, b) => a + b, 0) / gaps.length;
-    const sd = Math.sqrt(gaps.reduce((a, g) => a + (g - mean) * (g - mean), 0) / gaps.length);
-    if (sd < 1.5) return 'robotic input pattern';
+  // 3. Reaction time (hook ready → fire) with near-zero variance is a script.
+  //    A human aiming at different targets varies by hundreds of ms.
+  if (reactionDelays.length >= 8) {
+    const mean = reactionDelays.reduce((a, b) => a + b, 0) / reactionDelays.length;
+    const sd = Math.sqrt(reactionDelays.reduce((a, g) => a + (g - mean) * (g - mean), 0) / reactionDelays.length);
+    if (sd < 3) return 'robotic input pattern';
   }
   return null;
 }

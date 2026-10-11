@@ -277,16 +277,30 @@ export function step(s: State, inputs: InputAction[]): void {
  * verify a submitted score: the client's own score is never trusted.
  */
 export function simulate(seed: number, inputs: Input[]): State {
+  return simulateDetailed(seed, inputs).state;
+}
+
+/**
+ * Like simulate(), but also returns the player's reaction delays: for every
+ * shot, the number of ticks between the hook becoming ready (swing phase)
+ * and the fire input. Humans vary these by hundreds of ms; scripts don't.
+ */
+export function simulateDetailed(seed: number, inputs: Input[]): { state: State; reactionDelays: number[] } {
   const s = createState(seed);
   const sorted = [...inputs].sort((a, b) => a.t - b.t);
+  const reactionDelays: number[] = [];
   let i = 0;
+  let readySince = 0;
   while (s.phase === 'play') {
     const now: InputAction[] = [];
     while (i < sorted.length && sorted[i].t <= s.tick) {
       now.push(sorted[i].a);
       i++;
     }
+    const wasSwing = s.hook.phase === 'swing';
+    if (wasSwing && s.shots > 0 && now.includes('fire')) reactionDelays.push(s.tick - readySince);
     step(s, now);
+    if (!wasSwing && s.hook.phase === 'swing') readySince = s.tick;
   }
-  return s;
+  return { state: s, reactionDelays };
 }
