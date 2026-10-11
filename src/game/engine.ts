@@ -10,7 +10,7 @@
 // Gold and rocks keep spawning at random intervals so the map never runs
 // dry but never gets crowded either. Score = money collected.
 
-import { Rng } from './rng';
+import { Rng } from './rng.js';
 
 export const TICK_RATE = 60;
 export const WORLD_W = 800;

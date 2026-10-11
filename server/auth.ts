@@ -4,8 +4,8 @@
 import nacl from 'tweetnacl';
 import bs58 from 'bs58';
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
-import { getStore } from './store';
-import { KEYS } from './epoch';
+import { getStore } from './store.js';
+import { KEYS } from './epoch.js';
 
 const TOKEN_TTL_SEC = 24 * 3600;
 const NONCE_TTL_SEC = 300;

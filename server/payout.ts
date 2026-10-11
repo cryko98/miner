@@ -6,9 +6,9 @@
 // many rounds instead of dumping the wallet in one go, and refills naturally
 // whenever more fees are claimed into the wallet.
 
-import { getStore } from './store';
-import { KEYS, TOP_N, epochEnd, epochOf, payoutPct } from './epoch';
-import { isHolder, rewardKeypair, rewardWalletBalanceSol, sendSol } from './solana';
+import { getStore } from './store.js';
+import { KEYS, TOP_N, epochEnd, epochOf, payoutPct } from './epoch.js';
+import { isHolder, rewardKeypair, rewardWalletBalanceSol, sendSol } from './solana.js';
 
 const GRACE_MS = 90_000;
 const FEE_RESERVE_SOL = 0.01;

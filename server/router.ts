@@ -2,12 +2,12 @@
 // and by the Vite dev-server middleware so local dev needs no extra tooling.
 
 import { randomBytes, randomInt } from 'node:crypto';
-import { getStore, isPersistent, StoreNotConfigured } from './store';
-import { EPOCH_MS, KEYS, RUNS_PER_EPOCH, TOP_N, epochEnd, epochOf, payoutPct } from './epoch';
-import { issueNonce, isValidWallet, loginMessage, verifyLogin, verifyToken } from './auth';
-import { MIN_HOLD_TOKENS, isHolder, rewardWalletAddress, rewardWalletBalanceSol, tokenMint } from './solana';
-import { simulateDetailed, SHOTS, TICK_RATE, MAX_TICKS, type Input } from '../src/game/engine';
-import { runPayout } from './payout';
+import { getStore, isPersistent, StoreNotConfigured } from './store.js';
+import { EPOCH_MS, KEYS, RUNS_PER_EPOCH, TOP_N, epochEnd, epochOf, payoutPct } from './epoch.js';
+import { issueNonce, isValidWallet, loginMessage, verifyLogin, verifyToken } from './auth.js';
+import { MIN_HOLD_TOKENS, isHolder, rewardWalletAddress, rewardWalletBalanceSol, tokenMint } from './solana.js';
+import { simulateDetailed, SHOTS, TICK_RATE, MAX_TICKS, type Input } from '../src/game/engine.js';
+import { runPayout } from './payout.js';
 
 export interface ApiRequest {
   method: string;
