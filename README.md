@@ -26,7 +26,8 @@ without any external service. Copy `.env.example` to `.env` to test against real
 
 ## Deploy (Vercel)
 
-1. Import the repo on Vercel (framework: Vite). The `api/[...path].ts` function is picked up automatically.
+1. Import the repo on Vercel (framework: Vite). Every `/api/*` request is rewritten (`vercel.json`) to the single
+   `api/index.ts` function with the sub-path in `?path=`.
 2. Add **Upstash Redis** from the Vercel Marketplace (Storage tab) — it injects `KV_REST_API_URL` / `KV_REST_API_TOKEN`.
 3. Set env vars (see `.env.example`): `AUTH_SECRET`, `CRON_SECRET`, `SOLANA_RPC_URL` (Helius recommended),
    `REWARD_WALLET_SECRET` (base58 secret key of the **reward** wallet — a dedicated wallet, never the creator wallet),
