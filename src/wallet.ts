@@ -30,6 +30,13 @@ export function listWallets(): Wallet[] {
     .filter((w) => w.chains.some((c) => c.startsWith('solana:')) && 'standard:connect' in w.features && 'solana:signMessage' in w.features);
 }
 
+/** Fires when a wallet registers or unregisters (e.g. injected late by an in-app browser). */
+export function onWalletsChanged(cb: () => void): void {
+  const w = getWallets();
+  w.on('register', cb);
+  w.on('unregister', cb);
+}
+
 export async function connectWallet(w: Wallet): Promise<ConnectedWallet> {
   const connect = w.features['standard:connect'] as ConnectFeature;
   const { accounts } = await connect.connect();

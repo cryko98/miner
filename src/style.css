@@ -232,6 +232,10 @@ section { padding: 72px 0; }
 .wallet-opt { display: flex; align-items: center; gap: 12px; background: #000; border: 3px solid #3c2a6e; padding: 12px; color: var(--text); font: 700 1rem 'Nunito', sans-serif; cursor: pointer; }
 .wallet-opt:hover { border-color: var(--gold); box-shadow: 0 0 12px rgba(255,210,31,.4); }
 .wallet-opt img { width: 28px; height: 28px; }
+.deeplinks { border-top: 2px dashed #3c2a6e; margin-top: 14px; padding-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.deeplinks[hidden] { display: none; }
+.deeplinks p { width: 100%; margin: 0 0 6px; }
+.dl-title { font-family: var(--pixel); font-size: .55rem; color: var(--gold); line-height: 1.7; }
 
 /* ---- Cards & steps ------------------------------------------------------ */
 .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }

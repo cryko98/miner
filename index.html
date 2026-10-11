@@ -220,6 +220,12 @@
       <div class="modal-box">
         <h3>Connect a wallet</h3>
         <div id="wallet-list" class="wallet-list"></div>
+        <div id="deeplinks" class="deeplinks" hidden>
+          <p class="dl-title">📱 On mobile? Open this site in your wallet app</p>
+          <a class="btn btn-primary btn-sm" id="dl-phantom" href="#">Open in Phantom</a>
+          <a class="btn btn-primary btn-sm" id="dl-solflare" href="#">Open in Solflare</a>
+          <p class="muted small">The wallet's built-in browser connects automatically. No app yet? Get <a href="https://phantom.app/download" target="_blank" rel="noopener">Phantom</a> or <a href="https://solflare.com/download" target="_blank" rel="noopener">Solflare</a>.</p>
+        </div>
         <p class="muted small">You'll be asked to sign a message to prove ownership. It's free and triggers no transaction.</p>
         <button class="btn btn-ghost btn-sm" id="wallet-close">Close</button>
       </div>

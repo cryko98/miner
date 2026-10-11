@@ -4,7 +4,7 @@ import { hashSeed } from './game/rng';
 import { Renderer } from './game/render';
 import { createState, SHOTS } from './game/engine';
 import { api, ApiError, hasToken, setToken, type ApiConfig, type Leaderboard, type Me } from './api';
-import { connectWallet, listWallets, type ConnectedWallet } from './wallet';
+import { connectWallet, listWallets, onWalletsChanged, type ConnectedWallet } from './wallet';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string): T => document.getElementById(id) as T;
 
@@ -173,11 +173,39 @@ async function login(w: ConnectedWallet): Promise<void> {
   void refreshLeaderboard();
 }
 
+function isMobile(): boolean {
+  return (
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (window.matchMedia('(pointer: coarse)').matches && window.innerWidth < 900)
+  );
+}
+
+// Mobile browsers can't inject a wallet, but every major Solana wallet app has
+// a built-in browser that does. These universal links open this exact page
+// inside that browser, where the normal Wallet Standard connect flow works.
+function setDeepLinks(): void {
+  const url = encodeURIComponent(location.href.split('#')[0] + '#play');
+  const ref = encodeURIComponent(location.origin);
+  ($('dl-phantom') as HTMLAnchorElement).href = `https://phantom.app/ul/browse/${url}?ref=${ref}`;
+  ($('dl-solflare') as HTMLAnchorElement).href = `https://solflare.com/ul/v1/browse/${url}?ref=${ref}`;
+}
+
 function openWalletModal(): void {
+  renderWalletList();
+  modal.hidden = false;
+}
+
+function renderWalletList(): void {
   const list = $('wallet-list');
   const wallets = listWallets();
+  const deeplinks = $('deeplinks');
+  const mobile = isMobile();
+  deeplinks.hidden = !(wallets.length === 0 && mobile);
+  if (!deeplinks.hidden) setDeepLinks();
   if (wallets.length === 0) {
-    list.innerHTML = `<p class="muted">No Solana wallet detected. Install <a href="https://phantom.app" target="_blank" rel="noopener">Phantom</a> or <a href="https://solflare.com" target="_blank" rel="noopener">Solflare</a> and reload.</p>`;
+    list.innerHTML = mobile
+      ? `<p class="muted small">No wallet detected in this browser.</p>`
+      : `<p class="muted">No Solana wallet detected. Install <a href="https://phantom.app" target="_blank" rel="noopener">Phantom</a> or <a href="https://solflare.com" target="_blank" rel="noopener">Solflare</a> and reload.</p>`;
   } else {
     list.innerHTML = '';
     for (const w of wallets) {
@@ -199,8 +227,13 @@ function openWalletModal(): void {
       list.appendChild(b);
     }
   }
-  modal.hidden = false;
 }
+
+// In-app wallet browsers sometimes register the wallet a moment after load;
+// re-render the list when that happens so the button appears without a reload.
+onWalletsChanged(() => {
+  if (!modal.hidden) renderWalletList();
+});
 
 walletBtn.addEventListener('click', async () => {
   if (me) {
