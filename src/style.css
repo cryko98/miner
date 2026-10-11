@@ -162,6 +162,7 @@ section { padding: 72px 0; }
 
 /* Tokenomics */
 .tok-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
+.tok-grid-single { grid-template-columns: 1fr; max-width: 640px; margin: 0 auto; }
 .tok-chart { text-align: center; }
 .donut {
   --c1: #f7c21b; --c2: #14f195; --c3: #9945ff;
